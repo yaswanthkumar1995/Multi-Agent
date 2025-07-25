@@ -6,7 +6,7 @@ import json
 import time
 import asyncio
 from datetime import datetime
-from langgraph_agent import LangGraphCoordinatorAgent
+from simple_agent import LangGraphCoordinatorAgent
 
 # Configure page
 st.set_page_config(
@@ -22,8 +22,6 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'thread_id' not in st.session_state:
     st.session_state.thread_id = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-if 'pending_query' not in st.session_state:
-    st.session_state.pending_query = None
 
 def main():
     st.title("🤖 Multi-Agent Intelligence Chatbot")
@@ -45,7 +43,6 @@ def main():
             if st.button("🆕 New Chat", use_container_width=True):
                 st.session_state.messages = []
                 st.session_state.thread_id = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                st.session_state.pending_query = None  # Clear any pending query
                 st.success("New chat started!")
                 st.rerun()
         
@@ -66,7 +63,6 @@ def main():
                 if st.button("✅ Yes, Clear", use_container_width=True):
                     st.session_state.messages = []
                     st.session_state.show_clear_confirm = False
-                    st.session_state.pending_query = None  # Clear any pending query
                     st.success("Chat cleared!")
                     st.rerun()
             
@@ -128,74 +124,6 @@ def main():
                     else:
                         time_str = str(timestamp)
                     st.caption(f"🕐 {time_str}")
-    
-    # Handle pending query from quick actions
-    if 'pending_query' in st.session_state and st.session_state.pending_query:
-        query = st.session_state.pending_query
-        st.session_state.pending_query = None  # Clear the pending query
-        
-        # Generate and display assistant response for quick action
-        with st.chat_message("assistant"):
-            response_container = st.empty()
-            
-            try:
-                # Get clean JSON response
-                with st.spinner("Analyzing..."):
-                    response = st.session_state.coordinator.get_simple_analysis(query)
-                
-                # Parse and format JSON response for better readability
-                try:
-                    # Try to parse JSON and format it nicely
-                    json_data = json.loads(response)
-                    
-                    # Check if this is a greeting/casual response
-                    if (json_data.get('product') == 'ReAct Agent' and 
-                        json_data.get('source') == 'LangGraph ReAct Coordinator' and
-                        ('👋 Hello!' in json_data.get('update', '') or 
-                         'Nice to meet you' in json_data.get('update', ''))):
-                        # Display as direct AI message for greetings
-                        ai_message = json_data.get('update', 'Hello!')
-                        response_container.markdown(ai_message)
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": ai_message,
-                            "timestamp": datetime.now()
-                        })
-                    else:
-                        # Display structured format for actual product updates
-                        formatted_response = f"""**Product:** {json_data.get('product', 'N/A')}
-
-**Update:** {json_data.get('update', 'N/A')}
-
-**Source:** {json_data.get('source', 'N/A')}
-
-**Date:** {json_data.get('date', 'N/A')}"""
-                        response_container.markdown(formatted_response)
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": formatted_response,
-                            "timestamp": datetime.now()
-                        })
-                except json.JSONDecodeError:
-                    # If not JSON, display as-is
-                    response_container.markdown(response)
-                    st.session_state.messages.append({
-                        "role": "assistant", 
-                        "content": response,
-                        "timestamp": datetime.now()
-                    })
-                
-            except Exception as e:
-                error_msg = f"❌ Sorry, I encountered an error: {str(e)}"
-                response_container.error(error_msg)
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": error_msg,
-                    "timestamp": datetime.now()
-                })
-        
-        # Rerun to update the display with the new response
-        st.rerun()
     
     # Chat input
     if prompt := st.chat_input("Type your message here..."):

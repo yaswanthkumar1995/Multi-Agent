@@ -1,5 +1,6 @@
 # Professional Multi-Agent Intelligence System Requirements
 streamlit>=1.28.0
+langchain-groq>=0.1.0
 ddgs>=6.0.0
 transformers>=4.30.0
 torch>=2.0.0
