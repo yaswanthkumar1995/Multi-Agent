@@ -271,8 +271,8 @@ class LangGraphCoordinatorAgent:
 Current query: {query}
 
 Available tools:
-1. search_intelligence - Search for latest information about products/companies/technologies
-2. summarize_content - Extract key product updates from search results  
+1. search_intelligence - Search for latest publishments/news/information about products/companies/technologies
+2. summarize_content - Extract concise & key produc updates from search results  
 3. verify_updates - Verify and validate the updates for accuracy
 
 Instructions:
