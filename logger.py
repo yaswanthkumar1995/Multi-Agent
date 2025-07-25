@@ -54,10 +54,12 @@ class AgentLogger:
             "timestamp": datetime.now().isoformat(),
             "agent": agent_name,
             "action": action,
-            "input": str(input_data)[:500],  # Truncate long inputs
-            "output": str(output_data)[:500],  # Truncate long outputs
+            "input": str(input_data)[:200],  # Truncate long inputs only
+            "output": str(output_data),  # Keep full output for JSON responses
         }
         
+        # Truncate only for console logging, not storage
+        console_output = str(output_data)[:200] if len(str(output_data)) > 200 else str(output_data)
         self.logger.info(f"Agent: {agent_name} | Action: {action} | Input: {str(input_data)[:100]}...")
         
         # Store in memory
@@ -79,7 +81,7 @@ class AgentLogger:
                 if interaction_time > cutoff_time:
                     # Simple similarity check
                     if query.lower() in interaction["input"].lower() or interaction["input"].lower() in query.lower():
-                        self.logger.info(f"Similar query found recently: {interaction['input'][:100]}...")
+                        self.logger.info(f"Similar query found recently: {interaction['input'][:500]}...")
                         return True
             except:
                 continue

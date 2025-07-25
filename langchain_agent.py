@@ -212,7 +212,7 @@ New input: {input}
                 
                 search_summary = f"Found {len(results)} results:\n"
                 for i, result in enumerate(results, 1):
-                    search_summary += f"{i}. {result.title}\n   {result.snippet[:100]}...\n   Source: {result.url}\n\n"
+                    search_summary += f"{i}. {result.title}\n   {result.snippet[:500]}...\n   Source: {result.url}\n\n"
                 
                 agent_logger.log_agent_interaction("SearchTool", "search_complete", query, f"{len(results)} results")
                 return search_summary
@@ -297,7 +297,7 @@ New input: {input}
                         return f"Verification failed. Here's cached information:\n\n{mock_response}"
                     result = '{"product": "Unknown", "update": "Verification failed", "source": "Analysis Tool", "date": "none"}'
                 
-                agent_logger.log_agent_interaction("AnalysisTool", "analysis_complete", query, result[:200])
+                agent_logger.log_agent_interaction("AnalysisTool", "analysis_complete", query, result)
                 return result
                 
             except Exception as e:
@@ -306,7 +306,7 @@ New input: {input}
                 mock_response = self._get_mock_response(query)
                 if mock_response:
                     return f"Analysis error occurred. Here's cached information:\n\n{mock_response}"
-                return f'{{"product": "Error", "update": "Analysis failed: {str(e)[:100]}", "source": "Analysis Tool", "date": "none"}}'
+                return f'{{"product": "Error", "update": "Analysis failed: {str(e)}", "source": "Analysis Tool", "date": "none"}}'
         
         def typo_correction_tool(text: str) -> str:
             """Correct typos in user input with fallback"""
@@ -381,7 +381,7 @@ Corrected:"""
             # Extract the output from AgentExecutor response
             final_response = response.get("output", str(response))
             
-            agent_logger.log_agent_interaction("AgentExecutor", "chat_complete", message, final_response[:200])
+            agent_logger.log_agent_interaction("AgentExecutor", "chat_complete", message, final_response)
             return final_response
             
         except Exception as e:
@@ -453,7 +453,7 @@ if __name__ == "__main__":
         print(f"\n🔍 Query: '{query}'")
         try:
             response = agent.chat(query)
-            print(f"📝 Response: {response[:300]}..." if len(response) > 300 else f"📝 Response: {response}")
+            print(f"📝 Response: {response[:200]}..." if len(response) > 200 else f"📝 Response: {response}")
         except Exception as e:
             print(f"❌ Error: {e}")
         print("-" * 80)
