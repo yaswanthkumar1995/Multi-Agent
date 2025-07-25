@@ -1,12 +1,13 @@
 """
 Streamlit Chatbot Interface for the multi-agent intelligence system.
+Updated to use LangChain AgentExecutor implementation.
 """
 import streamlit as st
 import json
 import time
 import asyncio
 from datetime import datetime
-from simple_agent import LangGraphCoordinatorAgent
+from langchain_agent import LangChainMultiAgent
 
 # Configure page
 st.set_page_config(
@@ -17,7 +18,7 @@ st.set_page_config(
 
 # Initialize session state for chatbot
 if 'coordinator' not in st.session_state:
-    st.session_state.coordinator = LangGraphCoordinatorAgent()
+    st.session_state.coordinator = LangChainMultiAgent()
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'thread_id' not in st.session_state:
@@ -145,7 +146,7 @@ def main():
             try:
                 # Get clean JSON response
                 with st.spinner("Analyzing..."):
-                    response = st.session_state.coordinator.get_simple_analysis(prompt)
+                    response = st.session_state.coordinator.chat(prompt)
                 
                 # Parse and format JSON response for better readability
                 try:
